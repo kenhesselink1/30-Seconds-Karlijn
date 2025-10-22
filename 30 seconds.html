@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>30 Seconds Cadeau</title>
+<style>
+  body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #f6f6f6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 { margin-bottom: 10px; }
+  #woorden {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+  }
+  .woord {
+    background: white;
+    border: 2px solid #ddd;
+    padding: 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .woord.geraden {
+    background: #c8f7c5;
+    text-decoration: line-through;
+  }
+  #timer {
+    font-size: 2em;
+    margin: 10px 0;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin: 5px;
+  }
+  #scoreboard {
+    margin-top: 20px;
+  }
+  input {
+    padding: 5px;
+    margin: 5px;
+    font-size: 1em;
+    width: 120px;
+  }
+</style>
+</head>
+<body>
+
+<h1>30 Seconds Cadeau 🎁</h1>
+
+<div>
+  Team A: <input id="teamAName" value="Team A">
+  Team B: <input id="teamBName" value="Team B">
+</div>
+
+<div id="timer">30</div>
+<div id="woorden"></div>
+
+<button id="start">Start ronde</button>
+<button id="verder" style="display:none;">Verder</button>
+
+<div id="scoreboard">
+  <p id="scoreAdisplay">Team A: <span id="scoreA">0</span></p>
+  <p id="scoreBdisplay">Team B: <span id="scoreB">0</span></p>
+</div>
+
+<script>
+// 📝 Plaatsvervanger woordenlijst – vervang later door je eigen woorden
+const woordenlijst = [
+  "Placeholder1", "Placeholder2", "Placeholder3", "Placeholder4", "Placeholder5",
+  "Placeholder6", "Placeholder7", "Placeholder8", "Placeholder9", "Placeholder10"
+];
+
+let timer, tijd = 30;
+let huidigeWoorden = [];
+let teamA = 0, teamB = 0;
+let huidigTeam = "A";
+
+const timerEl = document.getElementById("timer");
+const woordenEl = document.getElementById("woorden");
+const startBtn = document.getElementById("start");
+const verderBtn = document.getElementById("verder");
+const scoreAEl = document.getElementById("scoreA");
+const scoreBEl = document.getElementById("scoreB");
+const teamANameInput = document.getElementById("teamAName");
+const teamBNameInput = document.getElementById("teamBName");
+const scoreADisplay = document.getElementById("scoreAdisplay");
+const scoreBDisplay = document.getElementById("scoreBdisplay");
+
+// Willekeurige 5 woorden kiezen
+function kiesWoorden() {
+  const shuffled = [...woordenlijst].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 5);
+}
+
+// Start de ronde
+function startRonde() {
+  huidigeWoorden = kiesWoorden();
+  woordenEl.innerHTML = "";
+  huidigeWoorden.forEach(w => {
+    const el = document.createElement("div");
+    el.className = "woord";
+    el.textContent = w;
+    el.onclick = () => el.classList.toggle("geraden");
+    woordenEl.appendChild(el);
+  });
+
+  tijd = 30;
+  timerEl.textContent = tijd;
+  startBtn.style.display = "none";
+  verderBtn.style.display = "none";
+
+  timer = setInterval(() => {
+    tijd--;
+    timerEl.textContent = tijd;
+    if (tijd <= 0) {
+      clearInterval(timer);
+      verderBtn.style.display = "inline-block";
+    }
+  }, 1000);
+}
+
+// Verder naar volgende ronde en score bijwerken
+function verder() {
+  const geraden = document.querySelectorAll(".woord.geraden").length;
+  const teamAName = teamANameInput.value || "Team A";
+  const teamBName = teamBNameInput.value || "Team B";
+
+  if (huidigTeam === "A") {
+    teamA += geraden;
+    huidigTeam = "B";
+  } else {
+    teamB += geraden;
+    huidigTeam = "A";
+  }
+
+  scoreAEl.textContent = teamA;
+  scoreBEl.textContent = teamB;
+  scoreADisplay.textContent = `${teamAName}: ${teamA}`;
+  scoreBDisplay.textContent = `${teamBName}: ${teamB}`;
+
+  startBtn.textContent = `Start ronde (${huidigTeam === "A" ? teamAName : teamBName})`;
+  startBtn.style.display = "inline-block";
+  woordenEl.innerHTML = "";
+  timerEl.textContent = "30";
+  verderBtn.style.display = "none";
+}
+
+startBtn.onclick = startRonde;
+verderBtn.onclick = verder;
+</script>
+
+</body>
+</html>
