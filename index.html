@@ -4,10 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>30 Seconds</title>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="30 Seconds">
-
   <style>
     body {
       margin: 0;
@@ -21,72 +17,19 @@
       justify-content: center;
       align-items: center;
     }
-
-    h1 {
-      font-size: 2.8rem;
-      margin-bottom: 1rem;
-      letter-spacing: 2px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-    }
-
-    .word-list {
-      width: 90%;
-      max-width: 400px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 12px;
-      padding: 1rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-
+    h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+    .hidden { display: none; }
+    .word-list { width: 90%; max-width: 400px; margin: 1rem auto; }
     .word {
       background: rgba(255,255,255,0.3);
       margin: 0.4rem 0;
       padding: 0.8rem;
       border-radius: 8px;
       font-size: 1.2rem;
-      color: #fff;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: 0.2s;
-    }
-
-    .word:hover {
-      background: rgba(255,255,255,0.4);
       cursor: pointer;
     }
-
-    .word.checked {
-      background: rgba(76, 175, 80, 0.7);
-      text-decoration: line-through;
-    }
-
-    .checkmark {
-      width: 24px;
-      height: 24px;
-      background: #4caf50;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 16px;
-      color: white;
-      margin-left: 10px;
-    }
-
-    .timer {
-      font-size: 2.5rem;
-      font-weight: bold;
-      margin: 1rem 0;
-      text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
-    }
-
-    .buttons {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
+    .word.checked { background: rgba(76, 175, 80, 0.7); text-decoration: line-through; }
+    .timer { font-size: 2.5rem; margin: 1rem 0; }
     button {
       font-size: 1.2rem;
       padding: 0.6rem 1.2rem;
@@ -95,64 +38,92 @@
       background: #ffcc00;
       color: #003366;
       font-weight: bold;
-      box-shadow: 0 3px 5px rgba(0,0,0,0.3);
-      transition: 0.2s;
+      margin: 0.5rem;
     }
-
-    button:hover {
-      background: #ffe066;
-      cursor: pointer;
-      transform: scale(1.05);
+    .scoreboard { margin-top: 1rem; font-size: 1.2rem; }
+    @keyframes blink {
+      0% { color: white; }
+      50% { color: red; }
+      100% { color: white; }
     }
-
-    .scoreboard {
-      margin-top: 1.5rem;
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      font-size: 1.2rem;
-      color: #fff;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    .blink { animation: blink 1s infinite; }
+    input {
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      margin: 0.3rem;
     }
   </style>
 </head>
 <body>
-  <h1>30 SECONDS</h1>
-
-  <div class="word-list" id="wordList">
-    <div class="word">Klaar om te starten?</div>
+  <!-- Startscherm -->
+  <div id="startScreen">
+    <h1>30 SECONDS</h1>
+    <input id="teamAName" placeholder="Team A naam" />
+    <br>
+    <input id="teamBName" placeholder="Team B naam" />
+    <br><br>
+    <button onclick="startGame()">Start spel</button>
   </div>
 
-  <div class="timer" id="timer">30</div>
-
-  <div class="buttons">
-    <button onclick="startRound()">Start ronde</button>
-    <button onclick="nextTeam()">Volgende team</button>
+  <!-- Scoreboard scherm -->
+  <div id="scoreScreen" class="hidden">
+    <h1>Tussenstand</h1>
+    <div class="scoreboard">
+      <div><span id="nameA"></span>: <span id="scoreA">0</span></div>
+      <div><span id="nameB"></span>: <span id="scoreB">0</span></div>
+    </div>
+    <h2>Team <span id="currentTeamName"></span> is aan de beurt!</h2>
+    <button onclick="startRound()">Begin ronde</button>
   </div>
 
-  <div class="scoreboard">
-    <div>Team A: <span id="scoreA">0</span></div>
-    <div>Team B: <span id="scoreB">0</span></div>
+  <!-- Ronde scherm -->
+  <div id="roundScreen" class="hidden">
+    <h1>Ronde</h1>
+    <div class="timer" id="timer">30</div>
+    <div class="word-list" id="wordList"></div>
   </div>
+
+  <!-- Eindscherm -->
+  <div id="endScreen" class="hidden">
+    <h1 id="winnerText"></h1>
+    <button onclick="resetGame()">Opnieuw spelen</button>
+  </div>
+
+  <!-- Geluiden -->
+  <audio id="startSound" src="start.mp3" preload="auto"></audio>
+  <audio id="endSound" src="end.mp3" preload="auto"></audio>
 
   <script>
-    // --- Je eigen woordenlijst hier 👇 ---
-    const words = [
-      "Amsterdam", "Tandarts", "Eiffeltoren", "Kaas", "Netflix",
-      "Fiets", "Donald Duck", "Zonsondergang", "Tijdmachine", "Raket",
-      "Toerist", "Spaghetti", "Politiek", "Kat", "Groningen",
-      "Louis Theroux", "Vliegtuig", "Festival", "Panda", "Discobal"
-    ];
+    const words = ["Amsterdam","Tandarts","Eiffeltoren","Kaas","Netflix","Fiets","Donald Duck","Zonsondergang","Tijdmachine","Raket","Toerist","Spaghetti","Politiek","Kat","Groningen","Louis Theroux","Vliegtuig","Festival","Panda","Discobal"];
 
-    let scoreA = 0;
-    let scoreB = 0;
+    let teamA = "Team A", teamB = "Team B";
+    let scoreA = 0, scoreB = 0;
     let currentTeam = "A";
     let timerInterval;
 
-    const wordListEl = document.getElementById("wordList");
     const timerEl = document.getElementById("timer");
-    const scoreAEl = document.getElementById("scoreA");
-    const scoreBEl = document.getElementById("scoreB");
+
+    function show(screenId) {
+      document.querySelectorAll("body > div").forEach(div => div.classList.add("hidden"));
+      document.getElementById(screenId).classList.remove("hidden");
+    }
+
+    function startGame() {
+      teamA = document.getElementById("teamAName").value || "Team A";
+      teamB = document.getElementById("teamBName").value || "Team B";
+      document.getElementById("nameA").textContent = teamA;
+      document.getElementById("nameB").textContent = teamB;
+      updateScoreboard();
+      show("scoreScreen");
+    }
+
+    function updateScoreboard() {
+      document.getElementById("scoreA").textContent = scoreA;
+      document.getElementById("scoreB").textContent = scoreB;
+      document.getElementById("currentTeamName").textContent = currentTeam === "A" ? teamA : teamB;
+    }
 
     function getRandomWords(count) {
       const shuffled = [...words].sort(() => 0.5 - Math.random());
@@ -160,64 +131,61 @@
     }
 
     function renderWords(wordArray) {
+      const wordListEl = document.getElementById("wordList");
       wordListEl.innerHTML = "";
       wordArray.forEach(w => {
         const div = document.createElement("div");
         div.className = "word";
         div.textContent = w;
-        div.onclick = () => toggleCheck(div);
+        div.onclick = () => div.classList.toggle("checked");
         wordListEl.appendChild(div);
       });
     }
 
-    function toggleCheck(el) {
-      el.classList.toggle("checked");
-      if (el.classList.contains("checked")) {
-        const check = document.createElement("div");
-        check.className = "checkmark";
-        check.innerHTML = "✔";
-        el.appendChild(check);
-      } else {
-        const check = el.querySelector(".checkmark");
-        if (check) el.removeChild(check);
-      }
-    }
-
     function startRound() {
-      const selectedWords = getRandomWords(5);
-      renderWords(selectedWords);
-
+      show("roundScreen");
+      renderWords(getRandomWords(5));
       let timeLeft = 30;
       timerEl.textContent = timeLeft;
+      timerEl.classList.remove("blink");
+      document.getElementById("startSound").play();
 
       clearInterval(timerInterval);
       timerInterval = setInterval(() => {
         timeLeft--;
         timerEl.textContent = timeLeft;
+        if (timeLeft <= 5) {
+          timerEl.classList.add("blink");
+        }
         if (timeLeft <= 0) {
           clearInterval(timerInterval);
+          timerEl.classList.remove("blink");
           endRound();
         }
       }, 1000);
     }
 
     function endRound() {
+      document.getElementById("endSound").play();
       const correctCount = document.querySelectorAll(".word.checked").length;
       if (currentTeam === "A") {
         scoreA += correctCount;
-        scoreAEl.textContent = scoreA;
       } else {
         scoreB += correctCount;
-        scoreBEl.textContent = scoreB;
       }
-      alert(`Tijd voorbij! ${correctCount} punten voor Team ${currentTeam}!`);
+      if (scoreA >= 15 || scoreB >= 15) {
+        document.getElementById("winnerText").textContent = (scoreA >= 15 ? teamA : teamB) + " heeft gewonnen!";
+        show("endScreen");
+      } else {
+        currentTeam = currentTeam === "A" ? "B" : "A";
+        updateScoreboard();
+        show("scoreScreen");
+      }
     }
 
-    function nextTeam() {
-      currentTeam = currentTeam === "A" ? "B" : "A";
-      wordListEl.innerHTML = `<div class="word">Team ${currentTeam} is aan de beurt!</div>`;
-      clearInterval(timerInterval);
-      timerEl.textContent = "30";
+    function resetGame() {
+      scoreA = 0; scoreB = 0; currentTeam = "A";
+      show("startScreen");
     }
   </script>
 </body>
