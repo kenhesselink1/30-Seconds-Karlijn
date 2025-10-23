@@ -1,168 +1,224 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="30 Seconds">
-<title>30 Seconds Cadeau</title>
-<style>
-  body {
-    font-family: sans-serif;
-    text-align: center;
-    background: #f6f6f6;
-    margin: 0;
-    padding: 20px;
-  }
-  h1 { margin-bottom: 10px; }
-  #woorden {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 20px 0;
-  }
-  .woord {
-    background: white;
-    border: 2px solid #ddd;
-    padding: 10px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-  .woord.geraden {
-    background: #c8f7c5;
-    text-decoration: line-through;
-  }
-  #timer {
-    font-size: 2em;
-    margin: 10px 0;
-  }
-  button {
-    padding: 10px 20px;
-    font-size: 1em;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    margin: 5px;
-  }
-  #scoreboard {
-    margin-top: 20px;
-  }
-  input {
-    padding: 5px;
-    margin: 5px;
-    font-size: 1em;
-    width: 120px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>30 Seconds</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="30 Seconds">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Arial Rounded MT Bold", "Helvetica Neue", sans-serif;
+      background: linear-gradient(to bottom, #0054a6, #66a6ff);
+      color: white;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 1rem;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    }
+
+    .word-list {
+      width: 90%;
+      max-width: 400px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .word {
+      background: rgba(255,255,255,0.3);
+      margin: 0.4rem 0;
+      padding: 0.8rem;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.2s;
+    }
+
+    .word:hover {
+      background: rgba(255,255,255,0.4);
+      cursor: pointer;
+    }
+
+    .word.checked {
+      background: rgba(76, 175, 80, 0.7);
+      text-decoration: line-through;
+    }
+
+    .checkmark {
+      width: 24px;
+      height: 24px;
+      background: #4caf50;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      color: white;
+      margin-left: 10px;
+    }
+
+    .timer {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin: 1rem 0;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    button {
+      font-size: 1.2rem;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: #ffcc00;
+      color: #003366;
+      font-weight: bold;
+      box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #ffe066;
+      cursor: pointer;
+      transform: scale(1.05);
+    }
+
+    .scoreboard {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 1.2rem;
+      color: #fff;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    }
+  </style>
 </head>
 <body>
+  <h1>30 SECONDS</h1>
 
-<h1>30 Seconds Cadeau 🎁</h1>
+  <div class="word-list" id="wordList">
+    <div class="word">Klaar om te starten?</div>
+  </div>
 
-<div>
-  Team A: <input id="teamAName" value="Team A">
-  Team B: <input id="teamBName" value="Team B">
-</div>
+  <div class="timer" id="timer">30</div>
 
-<div id="timer">30</div>
-<div id="woorden"></div>
+  <div class="buttons">
+    <button onclick="startRound()">Start ronde</button>
+    <button onclick="nextTeam()">Volgende team</button>
+  </div>
 
-<button id="start">Start ronde</button>
-<button id="verder" style="display:none;">Verder</button>
+  <div class="scoreboard">
+    <div>Team A: <span id="scoreA">0</span></div>
+    <div>Team B: <span id="scoreB">0</span></div>
+  </div>
 
-<div id="scoreboard">
-  <p id="scoreAdisplay">Team A: <span id="scoreA">0</span></p>
-  <p id="scoreBdisplay">Team B: <span id="scoreB">0</span></p>
-</div>
+  <script>
+    // --- Je eigen woordenlijst hier 👇 ---
+    const words = [
+      "Amsterdam", "Tandarts", "Eiffeltoren", "Kaas", "Netflix",
+      "Fiets", "Donald Duck", "Zonsondergang", "Tijdmachine", "Raket",
+      "Toerist", "Spaghetti", "Politiek", "Kat", "Groningen",
+      "Louis Theroux", "Vliegtuig", "Festival", "Panda", "Discobal"
+    ];
 
-<script>
-// 📝 Plaatsvervanger woordenlijst – vervang later door je eigen woorden
-const woordenlijst = [
-  "Placeholder1", "Placeholder2", "Placeholder3", "Placeholder4", "Placeholder5",
-  "Placeholder6", "Placeholder7", "Placeholder8", "Placeholder9", "Placeholder10"
-];
+    let scoreA = 0;
+    let scoreB = 0;
+    let currentTeam = "A";
+    let timerInterval;
 
-let timer, tijd = 30;
-let huidigeWoorden = [];
-let teamA = 0, teamB = 0;
-let huidigTeam = "A";
+    const wordListEl = document.getElementById("wordList");
+    const timerEl = document.getElementById("timer");
+    const scoreAEl = document.getElementById("scoreA");
+    const scoreBEl = document.getElementById("scoreB");
 
-const timerEl = document.getElementById("timer");
-const woordenEl = document.getElementById("woorden");
-const startBtn = document.getElementById("start");
-const verderBtn = document.getElementById("verder");
-const scoreAEl = document.getElementById("scoreA");
-const scoreBEl = document.getElementById("scoreB");
-const teamANameInput = document.getElementById("teamAName");
-const teamBNameInput = document.getElementById("teamBName");
-const scoreADisplay = document.getElementById("scoreAdisplay");
-const scoreBDisplay = document.getElementById("scoreBdisplay");
-
-// Willekeurige 5 woorden kiezen
-function kiesWoorden() {
-  const shuffled = [...woordenlijst].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, 5);
-}
-
-// Start de ronde
-function startRonde() {
-  huidigeWoorden = kiesWoorden();
-  woordenEl.innerHTML = "";
-  huidigeWoorden.forEach(w => {
-    const el = document.createElement("div");
-    el.className = "woord";
-    el.textContent = w;
-    el.onclick = () => el.classList.toggle("geraden");
-    woordenEl.appendChild(el);
-  });
-
-  tijd = 30;
-  timerEl.textContent = tijd;
-  startBtn.style.display = "none";
-  verderBtn.style.display = "none";
-
-  timer = setInterval(() => {
-    tijd--;
-    timerEl.textContent = tijd;
-    if (tijd <= 0) {
-      clearInterval(timer);
-      verderBtn.style.display = "inline-block";
+    function getRandomWords(count) {
+      const shuffled = [...words].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, count);
     }
-  }, 1000);
-}
 
-// Verder naar volgende ronde en score bijwerken
-function verder() {
-  const geraden = document.querySelectorAll(".woord.geraden").length;
-  const teamAName = teamANameInput.value || "Team A";
-  const teamBName = teamBNameInput.value || "Team B";
+    function renderWords(wordArray) {
+      wordListEl.innerHTML = "";
+      wordArray.forEach(w => {
+        const div = document.createElement("div");
+        div.className = "word";
+        div.textContent = w;
+        div.onclick = () => toggleCheck(div);
+        wordListEl.appendChild(div);
+      });
+    }
 
-  if (huidigTeam === "A") {
-    teamA += geraden;
-    huidigTeam = "B";
-  } else {
-    teamB += geraden;
-    huidigTeam = "A";
-  }
+    function toggleCheck(el) {
+      el.classList.toggle("checked");
+      if (el.classList.contains("checked")) {
+        const check = document.createElement("div");
+        check.className = "checkmark";
+        check.innerHTML = "✔";
+        el.appendChild(check);
+      } else {
+        const check = el.querySelector(".checkmark");
+        if (check) el.removeChild(check);
+      }
+    }
 
-  scoreAEl.textContent = teamA;
-  scoreBEl.textContent = teamB;
-  scoreADisplay.textContent = `${teamAName}: ${teamA}`;
-  scoreBDisplay.textContent = `${teamBName}: ${teamB}`;
+    function startRound() {
+      const selectedWords = getRandomWords(5);
+      renderWords(selectedWords);
 
-  startBtn.textContent = `Start ronde (${huidigTeam === "A" ? teamAName : teamBName})`;
-  startBtn.style.display = "inline-block";
-  woordenEl.innerHTML = "";
-  timerEl.textContent = "30";
-  verderBtn.style.display = "none";
-}
+      let timeLeft = 30;
+      timerEl.textContent = timeLeft;
 
-startBtn.onclick = startRonde;
-verderBtn.onclick = verder;
-</script>
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          endRound();
+        }
+      }, 1000);
+    }
 
+    function endRound() {
+      const correctCount = document.querySelectorAll(".word.checked").length;
+      if (currentTeam === "A") {
+        scoreA += correctCount;
+        scoreAEl.textContent = scoreA;
+      } else {
+        scoreB += correctCount;
+        scoreBEl.textContent = scoreB;
+      }
+      alert(`Tijd voorbij! ${correctCount} punten voor Team ${currentTeam}!`);
+    }
+
+    function nextTeam() {
+      currentTeam = currentTeam === "A" ? "B" : "A";
+      wordListEl.innerHTML = `<div class="word">Team ${currentTeam} is aan de beurt!</div>`;
+      clearInterval(timerInterval);
+      timerEl.textContent = "30";
+    }
+  </script>
 </body>
 </html>
-
